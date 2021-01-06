@@ -1,6 +1,11 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+
+import 'dart:convert' as convert;
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(ChatDemo());
@@ -39,6 +44,33 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
+  var text = 'This is Chat Demo';
+
+  // Login
+  void login(List<String> arguments) async {
+    var url = 'https://dungweb.site/api/v1/login';
+
+    //https://www.tutorialspoint.com/dart_programming/dart_programming_map.htm
+    var body = {'username': 'test_01', 'password': '1'};
+    // var body = new Map();
+    // body['username'] = 'test_01';
+    // body['test_01'] = '1';
+
+    var resp = await http.post(url, body: body);
+    if (resp.statusCode == HttpStatus.ok /*200*/) {
+      var jsonResp = convert.jsonDecode(resp.body);
+      print('Login Success!\n $jsonResp');
+      setState(() {
+        text = 'Welcome! Let try your app';
+      });
+    } else {
+      print('Login request failed: (${resp.statusCode}) - ${resp.body}');
+      setState(() {
+        text = 'Login Failed :(((';
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,12 +81,15 @@ class _MainPageState extends State<MainPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text('This is Chat Demo'),
+            Text(text),
             SizedBox(
               height: 20,
             ),
             OutlineButton(
-              onPressed: () {},
+              onPressed: () {
+                print('Logging in....');
+                login(null);
+              },
               child: Text('LOGIN'),
               color: Colors.blue,
               textColor: Colors.blue,
